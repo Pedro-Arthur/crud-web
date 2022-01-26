@@ -112,7 +112,7 @@ export default {
       { text: 'Trabalho', value: 'job' },
       { text: 'Idade', value: 'age' },
       { text: 'Telefone', value: 'phone' },
-      { text: 'Actions', value: 'actions', sortable: false },
+      { text: 'Ações', value: 'actions', sortable: false },
     ],
     items: [],
     editedIndex: -1,
