@@ -29,12 +29,6 @@
                 <v-row>
                   <v-col cols="12" sm="6" md="4">
                     <v-text-field
-                      v-model="editedItem.id"
-                      label="ID"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field
                       v-model="editedItem.name"
                       label="Nome"
                     ></v-text-field>
@@ -95,12 +89,14 @@
       <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
     </template>
     <template #no-data>
-      <v-btn color="primary" @click="initialize"> Resetar </v-btn>
+      <v-btn color="primary" @click="getUsers"> Resetar </v-btn>
     </template>
   </v-data-table>
 </template>
 
 <script>
+import { userService } from '../services/user.service'
+
 export default {
   name: 'IndexItem',
   data: () => ({
@@ -116,6 +112,7 @@ export default {
       { text: 'Trabalho', value: 'job' },
       { text: 'Idade', value: 'age' },
       { text: 'Telefone', value: 'phone' },
+      { text: 'Actions', value: 'actions', sortable: false },
     ],
     items: [],
     editedIndex: -1,
@@ -151,34 +148,14 @@ export default {
   },
 
   created() {
-    this.initialize()
+    this.getUsers()
   },
 
   methods: {
-    initialize() {
-      this.items = [
-        {
-          id: 1,
-          name: 'Pedro',
-          job: 'Programador',
-          age: 19,
-          phone: '3498921188',
-        },
-        {
-          id: 2,
-          name: 'João',
-          job: 'UI/UX',
-          age: 22,
-          phone: '34994878787',
-        },
-        {
-          id: 3,
-          name: 'Lucas',
-          job: 'Suporte',
-          age: 32,
-          phone: '3499912121',
-        },
-      ]
+    async getUsers() {
+      await userService.getAll().then((res) => {
+        this.items = res.data
+      })
     },
 
     editItem(item) {
@@ -193,8 +170,9 @@ export default {
       this.dialogDelete = true
     },
 
-    deleteItemConfirm() {
+    async deleteItemConfirm() {
       this.items.splice(this.editedIndex, 1)
+      await userService.deleteUser(this.editedItem.id)
       this.closeDelete()
     },
 
@@ -214,11 +192,14 @@ export default {
       })
     },
 
-    save() {
+    async save() {
       if (this.editedIndex > -1) {
         Object.assign(this.items[this.editedIndex], this.editedItem)
+        await userService.update(this.editedItem)
       } else {
-        this.items.push(this.editedItem)
+        await userService.store(this.editedItem).then((res) => {
+          this.items.push(res.data)
+        })
       }
       this.close()
     },
